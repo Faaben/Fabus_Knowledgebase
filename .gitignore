@@ -1,0 +1,14 @@
+# Python Cache-Dateien ignorieren
+__pycache__/
+*.pyc
+*.pyo
+
+# SQLite Datenbank (falls du sie nicht pushen willst)
+#*.db
+
+# Virtuelle Umgebungen (falls du venv nutzt)
+venv/
+.env
+
+# VS Code spezifische Dateien ignorieren
+.vscode/
