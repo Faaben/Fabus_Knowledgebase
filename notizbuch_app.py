@@ -24,9 +24,6 @@ class NotizbuchApp:
 
 
 
-
-
-
     def create_widgets(self):
 
         # Spalten-Skalierung
@@ -68,30 +65,10 @@ class NotizbuchApp:
 
         # Screenshot-Anzeige
         tk.Label(self.root, text="Screenshot-Vorschau:", bg=config.BG_COLOR, fg=config.LABEL_TEXT_COLOR).grid(row=12, column=0, sticky="w", padx=10, pady=5)
-        self.label = tk.Label(self.root)  # Label für das Bild
-        self.label.grid(row=12, column=0, padx=10, pady=10)
+        self.screenshot_canvas = tk.Canvas(self.root, width=800, height=380, bg="white", relief="solid", bd=1)
+        self.screenshot_canvas.grid(row=13, column=0, padx=10, pady=10)
 
-        # Canvas für Screenshot (fixe Größe ca. 10x10 cm → 380x380 px)
-        self.screenshot_canvas = tk.Canvas(self.root, width=380, height=380, bg="white", relief="solid", bd=1)
-        self.screenshot_canvas.grid(row=12, column=0, padx=10, pady=10)
-
-        # Event für Klick → Ermöglicht `Ctrl + V` zum Einfügen eines Screenshots
         self.screenshot_canvas.bind("<Button-1>", self.paste_screenshot)
-
-        # Letzten Screenshot laden und anzeigen
-        self.lade_und_zeige_screenshot()
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         # Buttons
@@ -118,9 +95,6 @@ class NotizbuchApp:
         bold_frame.grid(row=4, column=1, pady=5)
         bold_button = tk.Button(bold_frame, text="Fett", command=self.make_bold, bg=config.BTN_COLOR, fg=config.BTN_TEXT_COLOR, width=10)
         bold_button.pack(anchor="center")
-
-
-
 
 
 
@@ -185,7 +159,6 @@ class NotizbuchApp:
             self.selected_note_id = None  # ID zurücksetzen
         else:
             messagebox.showwarning("Fehler", "Inhalt darf nicht leer sein!")
-
 
 
 
@@ -263,8 +236,6 @@ class NotizbuchApp:
 
 
 
-
-
     def select_note_screenshot(self, event):
         """Lädt den Screenshot der ausgewählten Notiz bei einfachem Klick."""
         try:
@@ -304,14 +275,6 @@ class NotizbuchApp:
 
 
 
-
-
-
-
-
-
-
-
     def convert_bold_to_markdown(self, content):
         """Erkennt Fett-Markierungen im Tkinter-Text und ersetzt sie durch **text** für Markdown."""
         
@@ -336,14 +299,6 @@ class NotizbuchApp:
 
         # Rückgabe des vollständigen, umgewandelten Inhalts als Markdown
         return self.results_text.get("1.0", tk.END).strip()
-
-
-
-
-
-
-
-
 
 
 
@@ -372,8 +327,6 @@ class NotizbuchApp:
             self.results_text.delete("1.0", tk.END)  # Falls die Notiz direkt im Suchfeld bearbeitet wurde, auch hier löschen
 
 
-
-
         # Notizen Highlighten        
     def search_and_highlight(self, query, start_index):
         end_index = self.results_text.index(tk.END)  # Ende des Textfelds
@@ -394,7 +347,6 @@ class NotizbuchApp:
                 start, end = selected_range
                 selected_text = self.content_text.get(start, end)
 
-
                 # Prüfen, ob der Text bereits fett ist (enthält ** oder __)
                 if selected_text.startswith("**") and selected_text.endswith("**"):
                     # Falls ja, entferne die Markdown-Sternchen und Fett-Tag
@@ -404,14 +356,9 @@ class NotizbuchApp:
                     # Falls nicht, füge ** hinzu und setze die Fett-Markierung
                     new_text = f"**{selected_text}**"
 
-
-
                     # Ersetze den markierten Text durch die neue Markdown-Formatierung           
                     self.content_text.delete(start, end)
                     self.content_text.insert(start, new_text)
-
-
-
             else:
                 print("Kein Text markiert!")
 
@@ -449,11 +396,6 @@ class NotizbuchApp:
 
 
 
-
-
-
-
-
     def paste_screenshot(self, event=None):
         """Holt den Screenshot aus der Zwischenablage und speichert ihn."""
         img = ImageGrab.grabclipboard()  # Screenshot aus Zwischenablage holen
@@ -487,19 +429,10 @@ class NotizbuchApp:
 
     def display_screenshot(self, img):
         """Zeigt das übergebene Bild im Canvas an."""
-        img.thumbnail((380, 380))  # Bildgröße anpassen
+        img.thumbnail((800, 380))  # Bildgröße anpassen
 
         self.screenshot_tk = ImageTk.PhotoImage(img)  # Tkinter-kompatibles Bild erstellen
         self.screenshot_canvas.create_image(190, 190, image=self.screenshot_tk, anchor="center")  # Bild in der Mitte anzeigen
-
-
-
-
-
-
-
-
-
 
 
 
