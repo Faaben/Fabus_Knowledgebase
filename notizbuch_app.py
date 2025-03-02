@@ -1,16 +1,18 @@
 import config
 import re
+import io
 import tkinter as tk
 from tkinter import messagebox
 from datenbank import Datenbank
 from notiz import Notiz
+from PIL import Image, ImageTk, ImageGrab
 
 
 class NotizbuchApp:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Fäbu's Knowledgebase")
-        self.root.geometry("1000x800")
+        self.root.geometry("1100x1200")
         self.root.configure(bg=config.BG_COLOR)
 
 
@@ -19,6 +21,11 @@ class NotizbuchApp:
 
         self.create_widgets()
         self.db.init_db()  # Datenbank initialisieren
+
+
+
+
+
 
     def create_widgets(self):
 
@@ -29,6 +36,7 @@ class NotizbuchApp:
         # Zeilen-Skalierung
         self.root.rowconfigure(3, weight=1)  # Z. B. für das Notizfeld oder Suchbereich
         self.root.rowconfigure(10, weight=2)  # Größere Gewichtung für das Suchergebnis
+        self.root.rowconfigure(12, weight=1)  # Platz für das Screenshot-Label
 
         # Titel-Eingabe
         tk.Label(self.root, text="Titel:", bg=config.BG_COLOR, fg=config.LABEL_TEXT_COLOR).grid(row=0, column=0, sticky="w", padx=10, pady=5)
@@ -39,8 +47,6 @@ class NotizbuchApp:
         tk.Label(self.root, text="Notiz:", bg=config.BG_COLOR, fg=config.LABEL_TEXT_COLOR).grid(row=2, column=0, sticky="w", padx=10, pady=5)
         self.content_text = tk.Text(self.root, height=5, bg=config.ENTRY_BG, fg=config.ENTRY_FG)
         self.content_text.grid(row=3, column=0, columnspan=2, sticky="nsew", padx=10, pady=5)
-
-        self.content_text.tag_configure("bold", font=("Arial", 10, "bold")) # Tag für Fett-Markierung im Eingabefeld setzen!
 
         # Suchfeld
         tk.Label(self.root, text="Suchen:", bg=config.BG_COLOR, fg=config.LABEL_TEXT_COLOR).grid(row=7, column=0, sticky="w", padx=10, pady=5)
@@ -54,9 +60,39 @@ class NotizbuchApp:
         self.results_text = tk.Text(self.root, height=10, bg=config.ENTRY_BG, fg=config.ENTRY_FG)
         self.results_text.grid(row=10, column=0, columnspan=2, sticky="nsew", padx=10, pady=5)
 
-        self.results_text.bind("<ButtonRelease-1>", self.select_note)
+        self.results_text.bind("<Double-Button-1>", self.select_note)
+        self.results_text.bind("<ButtonRelease-1>", self.select_note_screenshot)  # Einfacher Klick: Screenshot laden
         self.results_text.tag_configure("bold", font=("Arial", 10, "bold")) # Tag für Markdown-Fettformatierung setzen
         self.results_text.tag_configure("highlight", background=config.HIGHLIGHT_COLOR, foreground="black") # Wird fpr das Highlight verwendet
+
+
+        # Screenshot-Anzeige
+        tk.Label(self.root, text="Screenshot-Vorschau:", bg=config.BG_COLOR, fg=config.LABEL_TEXT_COLOR).grid(row=12, column=0, sticky="w", padx=10, pady=5)
+        self.label = tk.Label(self.root)  # Label für das Bild
+        self.label.grid(row=12, column=0, padx=10, pady=10)
+
+        # Canvas für Screenshot (fixe Größe ca. 10x10 cm → 380x380 px)
+        self.screenshot_canvas = tk.Canvas(self.root, width=380, height=380, bg="white", relief="solid", bd=1)
+        self.screenshot_canvas.grid(row=12, column=0, padx=10, pady=10)
+
+        # Event für Klick → Ermöglicht `Ctrl + V` zum Einfügen eines Screenshots
+        self.screenshot_canvas.bind("<Button-1>", self.paste_screenshot)
+
+        # Letzten Screenshot laden und anzeigen
+        self.lade_und_zeige_screenshot()
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         # Buttons
         # Frame für "Speichern"-Button erstellen
@@ -86,6 +122,9 @@ class NotizbuchApp:
 
 
 
+
+
+
         # Notiz hinzufügen
     def add_note(self):
         title = self.title_entry.get()
@@ -95,14 +134,33 @@ class NotizbuchApp:
         # "1.0" → Beginn des Textfelds (erste Zeile, erstes Zeichen)
         # .tk.END → Ende des Textfelds (alles bis zum letzten Zeichen).
 
-        if title and content:
-            note = Notiz(title, content)
-            self.db.add_note(note) # Speichert Notiz in der Datenbank
 
+        if title and content:
+            # **Schritt 1: Notiz speichern (ohne Screenshot)**
+            note = Notiz(title, content)
+            note_id = self.db.add_note(note)  # Notiz-ID abrufen
+
+
+
+            # **Schritt 2: Prüfen, ob ein Screenshot in der Zwischenablage ist**
+            screenshot_saved = False
+            if hasattr(self, 'temp_image_data') and self.temp_image_data:
+                self.db.speichere_screenshot(note_id, self.temp_image_data)
+                screenshot_saved = True
+
+            # **Schritt 3: Eingabefelder & Screenshot-Feld zurücksetzen**
             self.title_entry.delete(0, tk.END)
             self.content_text.delete("1.0", tk.END)
-            messagebox.showinfo("Erfolg", "Notiz gespeichert!")
-            self.search_notes()
+            self.screenshot_canvas.delete("all")  # Screenshot-Feld leeren
+            self.temp_image_data = None  # Temporäre Bild-Daten entfernen
+
+
+            # **Schritt 4: Erfolgsnachricht & UI-Aktualisierung**
+            messagebox.showinfo("Erfolg", "Notiz und Screenshot gespeichert!" if screenshot_saved else "Notiz gespeichert!")
+
+            self.search_notes()  # Notizliste aktualisieren
+
+
         else:
             messagebox.showwarning("Fehler", "Titel und Inhalt dürfen nicht leer sein!")
 
@@ -206,6 +264,54 @@ class NotizbuchApp:
 
 
 
+
+    def select_note_screenshot(self, event):
+        """Lädt den Screenshot der ausgewählten Notiz bei einfachem Klick."""
+        try:
+            # Bestimme, welche Zeile angeklickt wurde
+            index = self.results_text.index("@%d,%d" % (event.x, event.y))
+            line_start = self.results_text.index(index + " linestart")
+            line_end = self.results_text.index(index + " lineend")
+            line_text = self.results_text.get(line_start, line_end).strip()
+
+            # Prüfen, ob die Zeile eine ID enthält (Format: "ID: X | Titel: XYZ")
+            if line_text.startswith("ID:"):
+                parts = line_text.split("|")
+                if len(parts) > 1:
+                    note_id = parts[0].replace("ID:", "").strip()
+
+                    # Speichert die ausgewählte Notiz-ID
+                    if note_id.isdigit():
+                        self.selected_note_id = int(note_id)
+
+                        # Screenshot aus der Datenbank laden
+                        image_blob = self.db.lade_screenshot(self.selected_note_id)
+
+                        if image_blob:
+
+                            image_data = io.BytesIO(image_blob)
+                            img = Image.open(image_data)
+
+                            # Screenshot im Canvas anzeigen
+                            self.display_screenshot(img)
+                        else:
+                            # Falls kein Screenshot vorhanden, Canvas leeren
+                            self.screenshot_canvas.delete("all")
+
+        except Exception as e:
+            print("Fehler beim Laden des Screenshots:", e)
+
+
+
+
+
+
+
+
+
+
+
+
     def convert_bold_to_markdown(self, content):
         """Erkennt Fett-Markierungen im Tkinter-Text und ersetzt sie durch **text** für Markdown."""
         
@@ -280,9 +386,8 @@ class NotizbuchApp:
 
 
 
-
+        #Markiert den ausgewählten Text als fett (setzt ** darum) und formatiert ihn visuell.
     def make_bold(self):
-        """Markiert den ausgewählten Text als fett (setzt ** darum) und formatiert ihn visuell."""
         try:
             selected_range = self.content_text.tag_ranges(tk.SEL)
             if selected_range:
@@ -317,7 +422,7 @@ class NotizbuchApp:
 
 
     # Markdown Formatierung für Fett
-    def insert_markdown_text(self, text_widget, content, from_make_bold=False):
+    def insert_markdown_text(self, text_widget, content):
 
         bold_pattern = r"\*\*(.*?)\*\*|__(.*?)__"
         
@@ -340,6 +445,63 @@ class NotizbuchApp:
         remaining_text = content[last_index:]
         if remaining_text:
             text_widget.insert(tk.END, remaining_text)
+
+
+
+
+
+
+
+
+
+    def paste_screenshot(self, event=None):
+        """Holt den Screenshot aus der Zwischenablage und speichert ihn."""
+        img = ImageGrab.grabclipboard()  # Screenshot aus Zwischenablage holen
+
+        if img: 
+            # **Feld leeren, falls bereits ein Screenshot vorhanden ist**
+            self.screenshot_canvas.delete("all")  
+            self.temp_image_data = None  # Temporäre Bild-Daten entfernen
+
+            with io.BytesIO() as output:
+                img.save(output, format="PNG")
+                self.temp_image_data = output.getvalue()  # **Temporär speichern, aber nicht in DB!**
+
+            # Bild im Canvas anzeigen
+            self.display_screenshot(img)
+
+            print("Screenshot eingefügt, wird aber erst beim Speichern gesichert.")
+        else:
+            messagebox.showwarning("Fehler", "Kein Bild in der Zwischenablage gefunden!")
+
+
+    def lade_und_zeige_screenshot(self):
+        """Lädt den letzten Screenshot aus der Datenbank und zeigt ihn im Canvas an."""
+        image_blob = self.db.lade_letzten_screenshot()
+        if image_blob:
+            image_data = io.BytesIO(image_blob)
+            img = Image.open(image_data)
+            self.display_screenshot(img)
+        else:
+            self.screenshot_canvas.delete("all")  # Falls kein Bild existiert, bleibt das Feld leer
+
+    def display_screenshot(self, img):
+        """Zeigt das übergebene Bild im Canvas an."""
+        img.thumbnail((380, 380))  # Bildgröße anpassen
+
+        self.screenshot_tk = ImageTk.PhotoImage(img)  # Tkinter-kompatibles Bild erstellen
+        self.screenshot_canvas.create_image(190, 190, image=self.screenshot_tk, anchor="center")  # Bild in der Mitte anzeigen
+
+
+
+
+
+
+
+
+
+
+
 
 
     def run(self):
