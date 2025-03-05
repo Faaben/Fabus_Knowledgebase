@@ -16,6 +16,7 @@ Folgende Punkte will ich umsetzen:
     Ich will mit ctrl + C und ctrl + v einen Screenshot einem KB Eintrag anfügen und abspeichern. Beim Suchen soll er dann auch wieder angezeit werden.
 #### Erweiterte Ziele
   - Das Layout vom GUI soll moderner wirken aus diesem Grund will ich das customtkinter in meinem Projekt integrieren [Customtkinter](https://medium.com/@fareedkhandev/modern-gui-using-tkinter-12da0b983e22)
+  - Kategorien für die Notes erstellen, damit man die Suche besser eingrenzen kann. 
 
 ### Anleitung
 #### PyInstaller
