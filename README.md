@@ -24,6 +24,8 @@ Wenn man eine .exe Datei erstellt hat und danach wieder am code etas anpasst, wi
 Mit diesem Befehl Kann die .exe neu erstellt werden.  
 ``pyinstaller --onefile --windowed --noupx --clean --name "Fabus_Knowledgebase" main.py``
 
+#### Datenbank  
+Die Datenbank ist so eingestellt, das es einen Ordner "Fäbus_KB" im Dokumente Ordner vom User erstellt. Wenn es noch keinen hat wird eine Datei namens Fäbus_KB.db erstellt
 
 ### Journal
 
