@@ -17,8 +17,16 @@ Folgende Punkte will ich umsetzen:
 #### Erweiterte Ziele
   - Das Layout vom GUI soll moderner wirken aus diesem Grund will ich das customtkinter in meinem Projekt integrieren [Customtkinter](https://medium.com/@fareedkhandev/modern-gui-using-tkinter-12da0b983e22)
 
+### Anleitung
+#### PyInstaller
+Wenn man eine .exe Datei erstellt hat und danach wieder am code etas anpasst, wird dies nicht übernommen. Das bedeutet, die Datei muss neu aufgebaut werden. 
+Mit diesem Befehl Kann die .exe neu erstellt werden.  
+``pyinstaller --onefile --windowed --noupx --clean --name "Fabus_Knowledgebase" main.py``
 
 
 ### Journal
 
 02.03.2025 Ich habe die OOP Programmierung umgesetzt und getestet.
+
+05.03.2025 Ich habe heute die .exe mit pyinstaller erstellt. Hier gab es die schwirigkeit, das Windows die .exe immer wieder als Trojaner erkannt hat. Ich habe danach den pyinstaller noch einmal überprüft und es sollte alles korrekt sein. 
+ChatGPT meint, dass dies ein gängiger Fehler by pyinstaller ist und durch den PyInstaller-Bootloader ausgelöst wird. 
