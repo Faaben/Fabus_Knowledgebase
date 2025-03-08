@@ -10,13 +10,16 @@ Folgende Punkte will ich umsetzen:
   - NotizbuchApp
   - Datenbank
   - Notiz
-- ✅ Die Verwendung der KB soll einfacher werden aus diesem Grund soll die KB anhand einer Verlinkung aus dem Desktop gestartet werden können. Dafür will ich den PyInstaller verwenden. 
- https://pyinstaller.org/en/stable/index.html
+- ✅ Die Verwendung der KB soll einfacher werden aus diesem Grund soll die KB anhand einer Verlinkung aus dem Desktop gestartet werden können. Dafür will ich den PyInstaller verwenden.
+  [PyInstaller](https://pyinstaller.org/en/stable/index.html)
 - ✅ Da man manche dinge nicht so einfach mit dem Text beschreiben kann, ist es praktischer wenn man ein PrintScreen einfügen kann.
     Ich will mit ctrl + C und ctrl + v einen Screenshot einem KB Eintrag anfügen und abspeichern. Beim Suchen soll er dann auch wieder angezeit werden.
 
 #### Erweiterte Ziele
-- Das Layout vom GUI soll moderner wirken aus diesem Grund will ich das customtkinter in meinem Projekt integrieren [Customtkinter](https://medium.com/@fareedkhandev/modern-gui-using-tkinter-12da0b983e22)
+- Das Layout vom GUI soll moderner wirken aus diesem Grund will ich das customtkinter in meinem Projekt integrieren
+    - [Customtkinter Blog](https://medium.com/@fareedkhandev/modern-gui-using-tkinter-12da0b983e22)
+    - [Documentation Customtkinter](https://customtkinter.tomschimansky.com/)
+    - [GitHub TomSchimansky](https://github.com/TomSchimansky/CustomTkinter)
 - Kategorien für die Notes erstellen, damit man die Suche besser eingrenzen kann.
 - Screenshot mit ctrl + V einfügen. Damit ich eine weitere Funktion implementieren kann.
 - Doppelklick auf das Image soll es es in einem grösseren Format ausgeben. Das ist vorallem praktisch wenn das Bild kleine Details enthält welche man nicht so gut sieht.
