@@ -1,8 +1,20 @@
 import sqlite3
+import os
 
 class Datenbank:
-    def __init__(self, db_name="notizbuch.db"):
-        self.db_name = db_name
+    def __init__(self, db_name="Fäbus_KB.db"):
+        # Speicherort der Datenbank im "Dokumente"-Verzeichnis des Benutzers
+        self.db_folder = os.path.join(os.path.expanduser("~"), "Documents", "Fäbus_KB")
+        os.makedirs(self.db_folder, exist_ok=True)  # Falls der Ordner nicht existiert, erstelle ihn
+        
+        self.db_name = os.path.join(self.db_folder, db_name)
+
+        # Debug-Ausgabe, um sicherzustellen, dass der richtige Pfad verwendet wird
+        print("Datenbank wird gespeichert unter:", self.db_name)
+
+        # Falls die Datei nicht existiert, initialisiere die Datenbank
+        if not os.path.exists(self.db_name):
+            self.init_db()
 
     def init_db(self):
         conn = sqlite3.connect(self.db_name)
