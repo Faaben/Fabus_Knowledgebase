@@ -484,10 +484,18 @@ class NotizbuchApp:
 
 
     def resize_canvas(self, event):
-        """ Passt das Bild an, wenn sich die Fenstergröße ändert """
+        """ Verzögert die Neuskalierung, um Performance-Probleme zu vermeiden """
+        if hasattr(self, "resize_after_id"):
+            self.root.after_cancel(self.resize_after_id)  # Vorherigen Aufruf abbrechen
+
+        self.resize_after_id = self.root.after(100, self._perform_resize)  # Nach 100ms skalieren
+
+    def _perform_resize(self):
+        """ Führt die tatsächliche Skalierung des Bildes durch """
         if self.temp_image_data:
             img = Image.open(io.BytesIO(self.temp_image_data))
-            self.display_screenshot(img)
+            self.display_screenshot(img)  # Skaliert das Bild erneut
+
 
 
 
