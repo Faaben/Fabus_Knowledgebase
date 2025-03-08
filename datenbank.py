@@ -32,10 +32,13 @@ class Datenbank:
         conn.close()
         return note_id  # **Notiz-ID zurückgeben**
 
-    def update_note(self, note_id, content):
+    def update_note(self, note_id, title, content, image_blob=None):
         conn = sqlite3.connect(self.db_name)
         c = conn.cursor()
-        c.execute("UPDATE notes SET content = ? WHERE id = ?", (content, note_id))
+        if image_blob:
+            c.execute("UPDATE notes SET title = ?, content = ?, image = ? WHERE id = ?", (title, content, image_blob, note_id))
+        else:
+            c.execute("UPDATE notes SET title = ?, content = ? WHERE id = ?", (title, content, note_id))
         conn.commit()
         conn.close()
 
@@ -56,20 +59,13 @@ class Datenbank:
         return results
 
 
-    def get_note_content(self, note_id):
+    def get_note(self, note_id):
         conn = sqlite3.connect(self.db_name)
         c = conn.cursor()
-        c.execute("SELECT content FROM notes WHERE id = ?", (note_id,))
+        c.execute("SELECT title, content FROM notes WHERE id = ?", (note_id,))
         note = c.fetchone()
         conn.close()
-        return note[0] if note else None
-    
-
-
-
-
-
-
+        return note if note else (None, None)
 
 
     def speichere_screenshot(self, note_id, image_data):
