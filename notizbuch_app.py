@@ -111,13 +111,16 @@ class NotizbuchApp:
 
         # Notiz hinzufügen
     def add_note(self):
+        # Falls eine Notiz ausgewählt ist → Fehlermeldung anzeigen
+        if self.selected_note_id is not None:
+            messagebox.showwarning("Fehler", "Eine bestehende Notiz kann nicht gespeichert werden! Bitte aktualisiere sie stattdessen.")
+            return
+        
         title = self.title_entry.get()
         content = self.content_text.get("1.0", tk.END).strip() 
-        
         # self.content_text ist dein Tkinter Text-Widget (wo der Benutzer seine Notiz eingibt).
         # "1.0" → Beginn des Textfelds (erste Zeile, erstes Zeichen)
         # .tk.END → Ende des Textfelds (alles bis zum letzten Zeichen).
-
 
         if title and content:
             # **Schritt 1: Notiz speichern (ohne Screenshot)**
@@ -188,8 +191,10 @@ class NotizbuchApp:
         self.results_text.tag_remove("highlight", "1.0", tk.END)  # Vorherige Markierungen entfernen
         self.results_text.delete("1.0", tk.END)  # Alte Suchergebnisse löschen
 
+
+        # Falls das Suchfeld leer ist → Eingabefelder zurücksetzen
         if not query:
-            self.results_text.insert(tk.END, "Bitte einen Suchbegriff eingeben.\n")
+            self.clear_input_fields()  # Neue Methode, die Titel, Inhalt & Screenshot leert
             return
 
         results = self.db.search_notes(query)
@@ -215,6 +220,14 @@ class NotizbuchApp:
 
             # Hervorhebung durchführen
             self.search_and_highlight(query, start_index)
+
+
+    def clear_input_fields(self):
+        """Leert die Eingabefelder für einen neuen Notizeintrag."""
+        self.title_entry.delete(0, tk.END)  # Titel-Feld leeren
+        self.content_text.delete("1.0", tk.END)  # Inhalt-Feld leeren
+        self.screenshot_canvas.delete("all")  # Screenshot-Feld leeren
+        self.temp_image_data = None  # Temporäre Bild-Daten entfernen
 
 
         # Notiz auswählen, damit man weiss welchen Teil man aktuallisieren will.
