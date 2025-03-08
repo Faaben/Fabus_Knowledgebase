@@ -35,7 +35,7 @@ class NotizbuchApp:
         self.root.columnconfigure(4, weight=1)  # Rechte Spalte (Screenshot)
 
         # Zeilen-Skalierung
-        # self.root.rowconfigure(3, weight=0)  # Z. B. für das Notizfeld oder Suchbereich
+        self.root.rowconfigure(3, weight=1)  # Z. B. für das Notizfeld oder Suchbereich
         self.root.rowconfigure(10, weight=2)  # Größere Gewichtung für das Suchergebnis
     
 
@@ -58,7 +58,7 @@ class NotizbuchApp:
 
         # Suchergebnisse
         tk.Label(self.root, text="Suchergebnisse:", bg=config.BG_COLOR, fg=config.LABEL_TEXT_COLOR).grid(row=9, column=0, columnspan=3, sticky="w", padx=10, pady=5)
-        self.results_text = tk.Text(self.root, height=10, bg=config.ENTRY_BG, fg=config.ENTRY_FG)
+        self.results_text = tk.Text(self.root, height=30, bg=config.ENTRY_BG, fg=config.ENTRY_FG)
         self.results_text.grid(row=10, column=0, columnspan=5, sticky="nsew", padx=10, pady=5)
 
         self.results_text.bind("<ButtonRelease-1>", lambda event: (self.select_note(event), self.select_note_screenshot(event)))
@@ -275,9 +275,6 @@ class NotizbuchApp:
                     if note_id.isdigit():
                         self.selected_note_id = int(note_id)
 
-                        # Screenshot laden, aber Bearbeitung nicht aktivieren
-                        self.note_fully_selected = False  # Wichtig!
-
                         # Screenshot aus der Datenbank laden
                         image_blob = self.db.lade_screenshot(self.selected_note_id)
 
@@ -286,11 +283,17 @@ class NotizbuchApp:
                             image_data = io.BytesIO(image_blob)
                             img = Image.open(image_data)
 
+                            # Temporäre Bilddaten speichern, damit es auch bei Resize funktioniert
+                            with io.BytesIO() as output:
+                                img.save(output, format="PNG")
+                                self.temp_image_data = output.getvalue()
+
                             # Screenshot im Canvas anzeigen
                             self.display_screenshot(img)
                         else:
                             # Falls kein Screenshot vorhanden, Canvas leeren
                             self.screenshot_canvas.delete("all")
+                            self.temp_image_data = None  # Keine Bilddaten gespeichert
 
         except Exception as e:
             print("Fehler beim Laden des Screenshots:", e)
