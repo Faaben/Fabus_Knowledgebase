@@ -16,9 +16,20 @@ Folgende Punkte will ich umsetzen:
     Ich will mit ctrl + C und ctrl + v einen Screenshot einem KB Eintrag anfügen und abspeichern. Beim Suchen soll er dann auch wieder angezeit werden.
 #### Erweiterte Ziele
   - Das Layout vom GUI soll moderner wirken aus diesem Grund will ich das customtkinter in meinem Projekt integrieren [Customtkinter](https://medium.com/@fareedkhandev/modern-gui-using-tkinter-12da0b983e22)
+  - Kategorien für die Notes erstellen, damit man die Suche besser eingrenzen kann. 
 
+### Anleitung
+#### PyInstaller
+Wenn man eine .exe Datei erstellt hat und danach wieder am code etas anpasst, wird dies nicht übernommen. Das bedeutet, die Datei muss neu aufgebaut werden. 
+Mit diesem Befehl Kann die .exe neu erstellt werden.  
+``pyinstaller --onefile --windowed --noupx --clean --name "Fabus_Knowledgebase" main.py``
 
+#### Datenbank  
+Die Datenbank ist so eingestellt, das es einen Ordner "Fäbus_KB" im Dokumente Ordner vom User erstellt. Wenn es noch keinen hat wird eine Datei namens Fäbus_KB.db erstellt
 
 ### Journal
 
 02.03.2025 Ich habe die OOP Programmierung umgesetzt und getestet.
+
+05.03.2025 Ich habe heute die .exe mit pyinstaller erstellt. Hier gab es die schwirigkeit, das Windows die .exe immer wieder als Trojaner erkannt hat. Ich habe danach den pyinstaller noch einmal überprüft und es sollte alles korrekt sein. 
+ChatGPT meint, dass dies ein gängiger Fehler by pyinstaller ist und durch den PyInstaller-Bootloader ausgelöst wird. 
