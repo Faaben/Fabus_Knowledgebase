@@ -18,11 +18,14 @@ Folgende Punkte will ich umsetzen:
 #### Erweiterte Ziele
 - Das Layout vom GUI soll moderner wirken aus diesem Grund will ich das customtkinter in meinem Projekt integrieren [Customtkinter](https://medium.com/@fareedkhandev/modern-gui-using-tkinter-12da0b983e22)
 - Kategorien für die Notes erstellen, damit man die Suche besser eingrenzen kann.
+- Screenshot mit ctrl + V einfügen. Damit ich eine weitere Funktion implementieren kann.
+- Doppelklick auf das Image soll es es in einem grösseren Format ausgeben. Das ist vorallem praktisch wenn das Bild kleine Details enthält welche man nicht so gut sieht.
 
 ###ToDo's
 - ✅ Wenn ich die Grösse von meiner KB verändere, dann soll sich das ausgewählte Image sich automatisch der grösse anpassen.
 - ✅ Wenn ich ein Notiz auswähle, und danach ein neuer erfassen will, sind die Eingabefelder mit einem Inhalt belegt. Ziel, wenn die Suchfunktion leer ist, dann sollen auch die Eingabefelder für Title, Content, Image wieder leer sein.
 - ✅Wenn ich ein Notiz ausgewählt habe, dann erscheint ein Fehler wenn ich auf den Speichern anstatt auf den Aktualisieren Button klicke.
+
 
 ### Anleitung
 #### PyInstaller
