@@ -1,5 +1,5 @@
 class Notiz:
-    def __init__(self, title, content, image):
+    def __init__(self, title, content, image=None):
         self.title = title
         self.content = content
         self.image = image
