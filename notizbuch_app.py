@@ -2,13 +2,11 @@ import config
 import re
 import io
 import tkinter as tk
-from tkinter import messagebox
 from tkinter import *
 import customtkinter as ctk
 from datenbank import Datenbank
 from notiz import Notiz
 from PIL import Image, ImageTk, ImageGrab
-from CTkMessagebox import CTkMessagebox  # Importiere die CustomTkinter Messagebox
 from custom_messagebox import CustomMessagebox
 
 class NotizbuchApp:
@@ -44,7 +42,7 @@ class NotizbuchApp:
 
         # Notiz-Eingabe
         ctk.CTkLabel(self.root, text="Notiz:").grid(row=2, column=0, sticky="w", padx=10, pady=5)
-        self.content_text = tk.Text(self.root, height=10, bg=config.ENTRY_BG, fg=config.ENTRY_FG, insertbackground=config.INSERT)
+        self.content_text = tk.Text(self.root, height=10, bg=config.ENTRY_BG, fg=config.ENTRY_FG, insertbackground=config.INSERT, font=config.FONT)
         self.content_text.grid(row=3, column=0, columnspan=4, sticky="nsew", padx=(10,5), pady=5)
 
         # Suchfeld
@@ -56,16 +54,16 @@ class NotizbuchApp:
 
         # Suchergebnisse
         ctk.CTkLabel(self.root, text="Suchergebnisse:").grid(row=9, column=0, columnspan=3, sticky="w", padx=10, pady=5)
-        self.results_text = tk.Text(self.root, height=30, bg=config.ENTRY_BG, fg=config.ENTRY_FG)
+        self.results_text = tk.Text(self.root, height=30, bg=config.ENTRY_BG, fg=config.ENTRY_FG, font=config.FONT)
         self.results_text.grid(row=10, column=0, columnspan=5, sticky="nsew", padx=10, pady=5)
 
         self.results_text.bind("<ButtonRelease-1>", lambda event: self.select_note(event))
-        self.results_text.tag_configure("bold", font=("Arial", 10, "bold")) # Tag für Markdown-Fettformatierung setzen
+        self.results_text.tag_configure("bold", font=(config.FONT_FAMILY, config.FONT_SIZE, "bold")) # Tag für Markdown-Fettformatierung setzen
         self.results_text.tag_configure("highlight", background=config.HIGHLIGHT_COLOR, foreground="black") # Wird fpr das Highlight verwendet
 
         # Screenshot-Anzeige
         ctk.CTkLabel(self.root, text="Screenshot-Vorschau:",).grid(row=0, column=4, sticky="w", padx=10, pady=5)
-        self.screenshot_canvas = ctk.CTkCanvas(self.root, bg="white", width=200, height=150)
+        self.screenshot_canvas = ctk.CTkCanvas(self.root, bg="black", width=200, height=150)
         self.screenshot_canvas.grid(row=1, column=4, rowspan=4, padx=(5,10), pady=5, sticky="nsew")
         self.screenshot_canvas.bind("<Button-1>", self.paste_screenshot)
 
@@ -85,13 +83,10 @@ class NotizbuchApp:
         ctk.CTkButton(button_frame, text="Löschen", command=self.delete_note, width=120).pack(side="left", padx=5)
         ctk.CTkButton(button_frame, text="Fett", command=self.make_bold, width=80).pack(side="right", padx=5)
 
-
-
-        # Notiz hinzufügen
-    def add_note(self):
-        # Falls eine Notiz ausgewählt ist → Fehlermeldung anzeigen
+   
+    def add_note(self):  # Notiz hinzufügen    
         if self.selected_note_id is not None:
-            CTkMessagebox(title="Fehler", message="Eine bestehende Notiz kann nicht gespeichert werden! Bitte aktualisiere sie stattdessen.", icon="warning", option_1="OK")
+            self.show_false_message("Eine bestehende Notiz kann nicht gespeichert werden! Bitte aktualisiere sie stattdessen.")
             return
         
         title = self.title_entry.get()
@@ -101,266 +96,139 @@ class NotizbuchApp:
         # ."end" → Ende des Textfelds (alles bis zum letzten Zeichen).
 
         if title and content:
-            # **Schritt 1: Notiz speichern (ohne Screenshot)**
-            note = Notiz(title, content)
+            note = Notiz(title, content)  # Schritt 1: Notiz speichern (ohne Screenshot)
             note_id = self.db.add_note(note)  # Notiz-ID abrufen
 
-            # **Schritt 2: Prüfen, ob ein Screenshot in der Zwischenablage ist**
-            screenshot_saved = False
+            screenshot_saved = False  # Schritt 2: Prüfen, ob ein Screenshot in der Zwischenablage ist
             if hasattr(self, 'temp_image_data') and self.temp_image_data:
                 self.db.speichere_screenshot(note_id, self.temp_image_data)
                 screenshot_saved = True
 
-            # **Schritt 3: Eingabefelder & Screenshot-Feld zurücksetzen**
-            self.title_entry.delete(0, "end")
-            self.content_text.delete("1.0", "end")
-            self.screenshot_canvas.delete("all")  # Screenshot-Feld leeren
-            self.temp_image_data = None  # Temporäre Bild-Daten entfernen
-
-            # **Schritt 4: Erfolgsnachricht & UI-Aktualisierung**
-            #message = "Notiz und Screenshot gespeichert!" if screenshot_saved else "Notiz gespeichert!"
-            #CTkMessagebox(title="Erfolg", message=message, icon="check", option_1="OK")
-            self.show_success_message("Notiz erfolgreich gespeichert!")
-
-
+            self.clear_input_fields()  # Schritt 3: Eingabefelder & Screenshot-Feld zurücksetzen     
+            self.show_success_message("Notiz erfolgreich gespeichert!")  # Schritt 4: Erfolgsnachricht & UI-Aktualisierung
             self.search_notes()  # Notizliste aktualisieren
 
         else:
-            CTkMessagebox(title="Fehler", message="Titel und Inhalt dürfen nicht leer sein!", icon="warning", option_1="OK")
+            self.show_false_message("Titel und Inhalt dürfen nicht leer sein!")
 
 
-        # Notiz aktualisieren
-    def update_note(self):
+    def update_note(self):  # Notiz aktualisieren
         if self.selected_note_id is None:
-            CTkMessagebox(title="Fehler", message="Keine Notiz ausgewählt!", icon="warning", option_1="OK")
+            self.show_false_message("Keine Notiz ausgewählt!")
             return
         
-        # Hole die aktualisierten Werte aus den Eingabefeldern
-        title = self.title_entry.get().strip()
+        title = self.title_entry.get().strip() # Hole die aktualisierten Werte aus den Eingabefeldern
         content = self.content_text.get("1.0", "end").strip()
-
-        # Falls ein Screenshot eingefügt wurde, diesen speichern
-        image_blob = self.temp_image_data if hasattr(self, "temp_image_data") else None
+        image_blob = self.temp_image_data if hasattr(self, "temp_image_data") else None  # Falls ein Screenshot eingefügt wurde, diesen speichern
 
         if title and content:
-             # Notiz und ggf. Screenshot in der Datenbank aktualisieren
-            self.db.update_note(self.selected_note_id, title, content, image_blob)
-
-            #CTkMessagebox(title="Erfolg", message="Notiz und Screenshot aktualisiert!", icon="check", option_1="OK")
+            self.db.update_note(self.selected_note_id, title, content, image_blob)  # Notiz und ggf. Screenshot in der Datenbank aktualisieren
             self.show_success_message("Notiz wurde aktualisiert!")
-
-            # Suche neu laden, damit die Änderung sichtbar ist
-            self.search_notes()
-            self.selected_note_id = None  # ID zurücksetzen
-            self.title_entry.delete(0, "end")  # Titel-Feld leeren
-            self.content_text.delete("1.0", "end")  # Inhalt-Feld leeren
-            self.screenshot_canvas.delete("all")  # Canvas leeren
-            self.temp_image_data = None  # Temporäre Bild-Daten entfernen
+            self.search_notes()  # Suche neu laden
+            self.clear_input_fields()  # Alle Inputfelder leeren
         else:
-            CTkMessagebox(title="Fehler", message="Inhalt darf nicht leer sein!", icon="warning", option_1="OK")
+            self.show_false_message("Inhalt darf nicht leer sein!")
 
-
-        # Notizen suchen
-    def search_notes(self):
+        
+    def search_notes(self):  # Notizen suchen
         query = self.search_entry.get().strip().lower()
         self.results_text.tag_remove("highlight", "1.0", "end")  # Vorherige Markierungen entfernen
         self.results_text.delete("1.0", "end")  # Alte Suchergebnisse löschen
-
-        # Falls das Suchfeld leer ist → Eingabefelder zurücksetzen
-        if not query:
-            self.clear_input_fields()  # Neue Methode, die Titel, Inhalt & Screenshot leert
+   
+        if not query:  # Falls das Suchfeld leer ist → Eingabefelder zurücksetzen
+            self.clear_input_fields()  # Alle Inputfelder leeren
             return
 
         results = self.db.search_notes(query)
 
-        # Ergebnisse anzeigen und Highlight setzen
-        for note_id, title, content in results:
-            start_index = self.results_text.index("end")  # Startposition im Text
-
-            # ID normal einfügen
-            self.results_text.insert("end", f"ID: {note_id} | Titel: ")
-
-            # Titel fett machen
-            self.results_text.insert("end", f"{title}\n", "bold")
-
-            # Hier wird Markdown für den Inhalt angewendet:
-            self.insert_markdown_text(self.results_text, content)
-
-            self.results_text.insert("end", f"\n\n {'-'*40}\n\n")
-
-            # Hervorhebung durchführen
-            self.search_and_highlight(query, start_index)
+        for note_id, title, content in results:  # Ergebnisse anzeigen und Highlight setzen
+            start_index = self.results_text.index("end")  # Startposition im Text           
+            self.results_text.insert("end", f"ID: {note_id} | ", "bold")  # ID normal einfügen
+            self.results_text.insert("end", f"{title}\n", "bold")  # Titel fett machen
+            self.insert_markdown_text(self.results_text, content)  # Hier wird Markdown für den Inhalt angewendet:
+            self.results_text.insert("end", f"\n\n {'-'*40}\n\n")  # Abstand zwischen Notizen einfügen       
+            self.search_and_highlight(query, start_index)  # Hervorhebung durchführen
 
 
-    def clear_input_fields(self):
-        """Leert die Eingabefelder für einen neuen Notizeintrag."""
-        self.title_entry.delete(0, "end")  # Titel-Feld leeren
-        self.content_text.delete("1.0", "end")  # Inhalt-Feld leeren
-        self.screenshot_canvas.delete("all")  # Screenshot-Feld leeren
-        self.temp_image_data = None  # Temporäre Bild-Daten entfernen
+    def select_note(self, event):  #Notiz auswählen
+        # Bestimme, welche Zeile angeklickt wurde
+        index = self.results_text.index("@%d,%d" % (event.x, event.y))  
+        line_start = self.results_text.index(index + " linestart")
+        line_end = self.results_text.index(index + " lineend")
+        line_text = self.results_text.get(line_start, line_end).strip()
+
+        if line_text.startswith("ID:"):  # Prüfen, ob die Zeile eine ID enthält (Format: "ID: X | Titel: XYZ")
+            parts = line_text.split("|")
+            if len(parts) > 1:
+                note_id = parts[0].replace("ID:", "").strip()     
+                
+                if note_id.isdigit():
+                    self.selected_note_id = int(note_id)  # Speichert die ausgewählte Notiz-ID
+                    title, content = self.db.get_note(self.selected_note_id)  # Lade die Notiz aus der Datenbank
+                    image_blob = self.db.lade_screenshot(self.selected_note_id)  # Screenshot aus der Datenbank laden
+
+                    if title and content:
+                        self.title_entry.delete(0, "end")  #Titel leeren
+                        self.title_entry.insert(0, title)  # Titel einfügen
+
+                        self.content_text.delete("1.0", "end")  #Content leeren
+                        self.content_text.insert("1.0", content)  # Content einfügen
+
+                    if image_blob:
+                        image_data = io.BytesIO(image_blob)
+                        img = Image.open(image_data)
+
+                        with io.BytesIO() as output:
+                            img.save(output, format="PNG")
+                            self.temp_image_data = output.getvalue() # Bild temporär speichern, damit es auch bei Resize funktioniert
+
+                        self.display_screenshot(img)  # Screenshot im Canvas anzeigen
+
+                    else:
+                        self.screenshot_canvas.delete("all") # Wenn es kein Bild hat, dann Canvas leeren
+                        self.temp_image_data = None  # Keine Bilddaten gespeichert
 
 
-        # Notiz auswählen, damit man weiss welchen Teil man aktuallisieren will.
-    def select_note(self, event):
-        try:
-            # Bestimme, welche Zeile angeklickt wurde
-            index = self.results_text.index("@%d,%d" % (event.x, event.y))  
-            line_start = self.results_text.index(index + " linestart")
-            line_end = self.results_text.index(index + " lineend")
-            line_text = self.results_text.get(line_start, line_end).strip()
-
-            # Prüfen, ob die Zeile eine ID enthält (Format: "ID: X | Titel: XYZ")
-            if line_text.startswith("ID:"):
-                parts = line_text.split("|")
-                if len(parts) > 1:
-                    note_id = parts[0].replace("ID:", "").strip()
-                    
-                    # Speichert die ausgewählte Notiz-ID
-                    if note_id.isdigit():
-                        self.selected_note_id = int(note_id)
-                        self.note_fully_selected = True  # Jetzt kann aktualisiert werden
-
-                        # Lade die Notiz aus der Datenbank
-                        title, content = self.db.get_note(self.selected_note_id)
-
-                        if title and content:
-
-                            # Eingabefelder aktualisieren
-                            self.title_entry.delete(0, "end")
-                            self.title_entry.insert(0, title)  # Titel setzen
-
-                            self.content_text.delete("1.0", "end")
-                            self.content_text.insert("1.0", content)  # Inhalt setzen
-
-                        # Screenshot aus der Datenbank laden
-                        image_blob = self.db.lade_screenshot(self.selected_note_id)
-
-                        if image_blob:
-
-                            image_data = io.BytesIO(image_blob)
-                            img = Image.open(image_data)
-
-                            # Temporäre Bilddaten speichern, damit es auch bei Resize funktioniert
-                            with io.BytesIO() as output:
-                                img.save(output, format="PNG")
-                                self.temp_image_data = output.getvalue()
-
-                            # Screenshot im Canvas anzeigen
-                            self.display_screenshot(img)
-
-                        else:
-                            # Falls kein Screenshot vorhanden, Canvas leeren
-                            self.screenshot_canvas.delete("all")
-                            self.temp_image_data = None  # Keine Bilddaten gespeichert
-
-        except Exception as e:
-            print("Fehler beim Laden der Notiz/Screenshot:", e)
-
-
-    def convert_bold_to_markdown(self, content):
-        """Erkennt Fett-Markierungen im Tkinter-Text und ersetzt sie durch **text** für Markdown."""
-        
-        # Alle fett markierten Textstellen finden
-        bold_ranges = self.results_text.tag_ranges("bold")
-        
-        # Falls keine fett formatierten Bereiche vorhanden sind, einfach den Inhalt zurückgeben
-        if not bold_ranges:
-            return content
-
-        # Durch alle fett markierten Bereiche gehen
-        for i in range(0, len(bold_ranges), 2):
-            start = bold_ranges[i]   # Startposition
-            end = bold_ranges[i + 1] # Endposition
-
-            # Extrahiere den fett markierten Text
-            bold_text = self.results_text.get(start, end)
-
-            # Ersetze den fett formatierten Bereich durch **text**
-            self.results_text.delete(start, end)
-            self.results_text.insert(start, f"**{bold_text}**")
-
-        # Rückgabe des vollständigen, umgewandelten Inhalts als Markdown
-        return self.results_text.get("1.0", "end").strip()
-
-
-        # Notiz löschen
-    def delete_note(self):
+    def delete_note(self):  # Notiz löschen
         if self.selected_note_id is None:
-            CTkMessagebox(title="Fehler", message="Keine Notiz ausgewählt!", icon="warning", option_1="OK")
+            self.show_false_message("Keine Notiz ausgewählt!")
             return
-        
-        # Sicherheitsabfrage: Bestätigt der Nutzer das Löschen?
-        #confirm = CTkMessagebox(
-            #title="Löschen bestätigen",
-            #message="Möchtest du diese Notiz wirklich löschen?",
-            #icon="warning",
-            #option_1="Ja",
-            #option_2="Nein"
-        #).get()
+
         confirm = self.show_confirmation("Möchtest du diese Notiz wirklich löschen?")
         if confirm == "Ja":
             self.db.delete_note(self.selected_note_id)
+            self.clear_input_fields() # Eingabefelder ID löschen 
             self.show_success_message("Notiz gelöscht!")
+            self.search_notes() # Suchergebnisse aktualisieren
 
-
-        
-        #if confirm:
-            #self.db.delete_note(self.selected_note_id)
-            #CTkMessagebox(title="Erfolg", message="Notiz gelöscht!", icon="check", option_1="OK")
-
-
-
-            # Suchergebnisse aktualisieren
-            self.search_notes()
-
-            # ID zurücksetzen, damit kein weiterer falscher Löschvorgang passiert
-            self.selected_note_id = None
-
-            # Eingabefelder leeren
-            self.title_entry.delete(0, "end")
-            self.content_text.delete("1.0", "end")
-            self.results_text.delete("1.0", "end")  # Falls die Notiz direkt im Suchfeld bearbeitet wurde, auch hier löschen
-
-
-        # Notizen Highlighten        
-    def search_and_highlight(self, query, start_index):
+     
+    def search_and_highlight(self, query, start_index):  # Notizen Highlighten    
         end_index = self.results_text.index("end")  # Ende des Textfelds
         pos = self.results_text.search(query, start_index, stopindex=end_index, nocase=True)
-
 
         while pos:
             end_pos = f"{pos}+{len(query)}c"
             self.results_text.tag_add("highlight", pos, end_pos)
             pos = self.results_text.search(query, end_pos, stopindex=end_index, nocase=True)
 
+        
+    def make_bold(self):  # Fett markierung einfügen oder entfernen mit dem Fett-Button
+        selected_range = self.content_text.tag_ranges(tk.SEL)
+        if len(selected_range) == 2:  # Prüfen, ob Start- und Endposition vorhanden sind
+            start, end = selected_range
+            selected_text = self.content_text.get(start, end)
+           
+            if selected_text.strip().startswith("**") and selected_text.strip().endswith("**"):  # Prüfen, ob der Text bereits fett ist (enthält **)
+                new_text = selected_text[2:-2] # Falls ja, entferne die Markdown-Sternchen und Fett-Tag
 
-        #Markiert den ausgewählten Text als fett (setzt ** darum) und formatiert ihn visuell.
-    def make_bold(self):
-        try:
-            selected_range = self.content_text.tag_ranges(tk.SEL)
-            if selected_range:
-                start, end = selected_range
-                selected_text = self.content_text.get(start, end)
+            else:       
+                new_text = f"**{selected_text}**" # Falls nicht, füge ** hinzu und setze die Fett-Markierung     
 
-                # Prüfen, ob der Text bereits fett ist (enthält ** oder __)
-                if selected_text.startswith("**") and selected_text.endswith("**"):
-                    # Falls ja, entferne die Markdown-Sternchen und Fett-Tag
-                    new_text = selected_text[2:-2]
+            self.content_text.delete(start, end)  # Markierten Text löschen
+            self.content_text.insert(start, new_text)  # Formatierter Text einfügen
 
-                else:
-                    # Falls nicht, füge ** hinzu und setze die Fett-Markierung
-                    new_text = f"**{selected_text}**"
-
-                    # Ersetze den markierten Text durch die neue Markdown-Formatierung           
-                    self.content_text.delete(start, end)
-                    self.content_text.insert(start, new_text)
-            else:
-                print("Kein Text markiert!")
-
-        except:
-            messagebox.showwarning("Fehler", "Bitte Text markieren, um ihn fett zu machen!")
-
-
+        else:
+            self.show_false_message("Kein Text markiert!")
 
 
     # Markdown Formatierung für Fett
@@ -390,28 +258,26 @@ class NotizbuchApp:
 
 
     def paste_screenshot(self, event=None):
-        """Holt den Screenshot aus der Zwischenablage und speichert ihn."""
+        # Holt den Screenshot aus der Zwischenablage und speichert ihn.
         img = ImageGrab.grabclipboard()  # Screenshot aus Zwischenablage holen
 
         if img: 
-            # **Feld leeren, falls bereits ein Screenshot vorhanden ist**
-            self.screenshot_canvas.delete("all")  
+            self.screenshot_canvas.delete("all")  # Feld leeren, falls bereits ein Screenshot vorhanden ist
             self.temp_image_data = None  # Temporäre Bild-Daten entfernen
 
             with io.BytesIO() as output:
                 img.save(output, format="PNG")
-                self.temp_image_data = output.getvalue()  # **Temporär speichern, aber nicht in DB!**
+                self.temp_image_data = output.getvalue()  # Temporär speichern, aber nicht in DB!
 
-            # Bild im Canvas anzeigen
-            self.display_screenshot(img)
+            self.display_screenshot(img)  # Bild im Canvas anzeigen ist aber noch nicht in der DB gespeichert!
+            self.clear_clipboard()  # Zwischenablage leeren
 
-            print("Screenshot eingefügt, wird aber erst beim Speichern gesichert.")
         else:
-            CTkMessagebox(title="Fehler", message="Kein Bild in der Zwischenablage gefunden!", icon="warning", option_1="OK")
+            self.show_false_message("Kein Bild in der Zwischenablage gefunden!")
 
 
     def display_screenshot(self, img):
-        """Zeigt das übergebene Bild im Canvas an und skaliert es proportional."""
+        # Zeigt das übergebene Bild im Canvas an und skaliert es proportional.
         canvas_width = self.screenshot_canvas.winfo_width()
         canvas_height = self.screenshot_canvas.winfo_height()
 
@@ -440,11 +306,11 @@ class NotizbuchApp:
 
 
     def resize_canvas(self, event):
-        """ Verzögert die Neuskalierung, um Performance-Probleme zu vermeiden """
+        # Verzögert die Neuskalierung, um Performance-Probleme zu vermeiden
         if hasattr(self, "resize_after_id"):
             self.root.after_cancel(self.resize_after_id)  # Vorherigen Aufruf abbrechen
 
-        self.resize_after_id = self.root.after(100, self._perform_resize)  # Nach 100ms skalieren
+        self.resize_after_id = self.root.after(10, self._perform_resize)  # Nach 10ms skalieren
 
 
     def _perform_resize(self):
@@ -454,17 +320,38 @@ class NotizbuchApp:
             self.display_screenshot(img)  # Skaliert das Bild erneut
 
 
+    def clear_input_fields(self):
+        # Leert die Eingabefelder für einen neuen Notizeintrag.
+        self.title_entry.delete(0, "end")  # Titel-Feld leeren
+        self.content_text.delete("1.0", "end")  # Inhalt-Feld leeren
+        self.screenshot_canvas.delete("all")  # Screenshot-Feld leeren
+        self.temp_image_data = None  # Temporäre Bild-Daten entfernen
+        self.selected_note_id = None  # Ausgewählte ID entfernen
+
 
     def show_success_message(self, text):
-        """Zeigt eine OK-Messagebox"""
+        """Zeigt eine Erfolg OK-Messagebox"""
         msgbox = CustomMessagebox(self.root, title="Erfolg", message=text, buttons=("OK",))
         self.root.wait_window(msgbox)  # Warten, bis das Fenster geschlossen wird
 
+
+    def show_false_message(self, text):
+        """Zeigt eine Fehler OK-Messagebox"""
+        msgbox = CustomMessagebox(self.root, title="Fehler", message=text, buttons=("OK",))
+        self.root.wait_window(msgbox)  # Warten, bis das Fenster geschlossen wird
+
+
     def show_confirmation(self, text):
-        #Zeigt eine Ja/Nein-Messagebox und gibt das Ergebnis zurück
+        # eigt eine Ja/Nein-Messagebox und gibt das Ergebnis zurück
         msgbox = CustomMessagebox(self.root, title="Bestätigung", message=text, buttons=("Ja", "Nein"))
         self.root.wait_window(msgbox)  # Warten, bis das Fenster geschlossen wird
         return msgbox.result  # Gibt "Ja" oder "Nein" zurück
+    
+    def clear_clipboard(self):
+        # Zwischenablage leeren
+        self.root.clipboard_clear()  # Inhalt löschen
+        self.root.clipboard_append("")  # Sicherstellen, dass nichts mehr drin ist
+        self.root.update()  # Änderungen an der Zwischenablage sofort übernehmen
 
 
 
