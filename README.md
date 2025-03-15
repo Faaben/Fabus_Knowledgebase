@@ -16,13 +16,17 @@ Folgende Punkte will ich umsetzen:
     Ich will mit ctrl + C und ctrl + v einen Screenshot einem KB Eintrag anfügen und abspeichern. Beim Suchen soll er dann auch wieder angezeit werden.
 
 #### Erweiterte Ziele
-- Das Layout vom GUI soll moderner wirken aus diesem Grund will ich das customtkinter in meinem Projekt integrieren
+- ✅ Das Layout vom GUI soll moderner wirken aus diesem Grund will ich das customtkinter in meinem Projekt integrieren
     - [Customtkinter Blog](https://medium.com/@fareedkhandev/modern-gui-using-tkinter-12da0b983e22)
     - [Documentation Customtkinter](https://customtkinter.tomschimansky.com/)
     - [GitHub TomSchimansky](https://github.com/TomSchimansky/CustomTkinter)
+- Ein CMD erstellen, damit ich das notizbuch mit dem Kurzbefehl "111" das notizbuch öffnen kann 
 - Kategorien für die Notes erstellen, damit man die Suche besser eingrenzen kann.
 - Screenshot mit ctrl + V einfügen. Damit ich eine weitere Funktion implementieren kann.
-- Doppelklick auf das Image soll es es in einem grösseren Format ausgeben. Das ist vorallem praktisch wenn das Bild kleine Details enthält welche man nicht so gut sieht.
+- Doppelklick auf das Image soll es in einem grösseren Format ausgeben. Das ist vorallem praktisch wenn das Bild kleine Details enthält welche man nicht so gut sieht.
+- Dateien an einem Notiz anfügen
+- Ein CMD erstellen, damit ich das notizbuch mit dem Kurzbefehl "111" das notizbuch öffnen kann
+- In der KB eine 2 Lasche erstellen. Damit man auf der 2. ein kleines Game hat.  
 
 ###ToDo's
 - ✅ Wenn ich die Grösse von meiner KB verändere, dann soll sich das ausgewählte Image sich automatisch der grösse anpassen.
@@ -47,3 +51,5 @@ Die Datenbank ist so eingestellt, das es einen Ordner "Fäbus_KB" im Dokumente O
 ChatGPT meint, dass dies ein gängiger Fehler by pyinstaller ist und durch den PyInstaller-Bootloader ausgelöst wird. 
 
 08.03.2024 Ich habe heute die ganze Handhabung mit dem Aktualisieren von Notizen und Skalieren von der App verbessert. Ich habe auch das Feedback von Michael umgesetzt, dass ich die select_note funktion anpassen könnte, damit der Text vom Notiz nicht in das Feld results_text geladen wird sondern in die gleichen Felder wie beim Erfassen der Notiz title_entry und content_text. Das hat die ganze handhabung vom Notizbuch sehr vereinfacht und es macht eigendlich auch mehr Sinn. Nach der Umsetzung von der automatischen Skalierung des Screenshotes hatte ich danach grosse Performance Probleme, da es beim skalieren der App sehr gestockt hat. Der grund war, das es bei jeder Pixel bewegung das Bild neu angepasst hat. Ich ahbe das danach geändert indem ich eine verzögerung von 100ms eingebaut habe. 
+
+11.03.2025 Ich habe die App auf das neue Design umgestellt. Hier gab es ein paar schwirigkeiten, vorallem das der Button Fett mit dem Customtkinter nicht mehr funktioniert da es das Bolt nicht unterstützt. Ich habe danach einen Mix von beiden gemacht, das meiste ist mit Customtkinter ausser die Textfelder sind weiterhin mit dem normalen tkinter. So kann ich die Formatierung besser steuern. 
