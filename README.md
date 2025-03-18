@@ -20,19 +20,29 @@ Folgende Punkte will ich umsetzen:
     - [Customtkinter Blog](https://medium.com/@fareedkhandev/modern-gui-using-tkinter-12da0b983e22)
     - [Documentation Customtkinter](https://customtkinter.tomschimansky.com/)
     - [GitHub TomSchimansky](https://github.com/TomSchimansky/CustomTkinter)
-- Ein CMD erstellen, damit ich das notizbuch mit dem Kurzbefehl "111" das notizbuch öffnen kann 
 - Kategorien für die Notes erstellen, damit man die Suche besser eingrenzen kann.
-- Screenshot mit ctrl + V einfügen. Damit ich eine weitere Funktion implementieren kann.
 - Doppelklick auf das Image soll es in einem grösseren Format ausgeben. Das ist vorallem praktisch wenn das Bild kleine Details enthält welche man nicht so gut sieht.
 - Dateien an einem Notiz anfügen
 - Ein CMD erstellen, damit ich das notizbuch mit dem Kurzbefehl "111" das notizbuch öffnen kann
-- In der KB eine 2 Lasche erstellen. Damit man auf der 2. ein kleines Game hat.  
+- In der KB eine 2 Lasche erstellen. Damit man auf der 2. ein kleines Game hat.
+- Button für Kursiv und Underline erstellen
 
 ###ToDo's
 - ✅ Wenn ich die Grösse von meiner KB verändere, dann soll sich das ausgewählte Image sich automatisch der grösse anpassen.
 - ✅ Wenn ich ein Notiz auswähle, und danach ein neuer erfassen will, sind die Eingabefelder mit einem Inhalt belegt. Ziel, wenn die Suchfunktion leer ist, dann sollen auch die Eingabefelder für Title, Content, Image wieder leer sein.
-- ✅Wenn ich ein Notiz ausgewählt habe, dann erscheint ein Fehler wenn ich auf den Speichern anstatt auf den Aktualisieren Button klicke.
+- ✅ Wenn ich ein Notiz ausgewählt habe, dann erscheint ein Fehler wenn ich auf den Speichern anstatt auf den Aktualisieren Button klicke.
+- ✅ Zwischenablage vom Screenshot nach dem einfügen wieder leeren.
+- ✅ Wenn ein Notiz gelöscht wird, dann wird das Screenshot Feld nicht aktuallisiert.
+- ✅ Messageboxen einheitlich gestalten
+- ✅ Resize_canvas optimieren, damit sich das Bild schneller anpasst beim skallieren.
+- Kursiv und Underline Funktion erstellt, allerdings fehlt noch die Funktion wo den Text dann visuell kursiv oder underline darstellt. 
 
+### Präsentation am 26.03.2025
+- 10min
+- LiveDemo 
+- Code einblick 
+- Schwierigkeiten beim programmieren
+- Ausgangslage und Ziele
 
 ### Anleitung
 #### PyInstaller
@@ -53,3 +63,5 @@ ChatGPT meint, dass dies ein gängiger Fehler by pyinstaller ist und durch den P
 08.03.2024 Ich habe heute die ganze Handhabung mit dem Aktualisieren von Notizen und Skalieren von der App verbessert. Ich habe auch das Feedback von Michael umgesetzt, dass ich die select_note funktion anpassen könnte, damit der Text vom Notiz nicht in das Feld results_text geladen wird sondern in die gleichen Felder wie beim Erfassen der Notiz title_entry und content_text. Das hat die ganze handhabung vom Notizbuch sehr vereinfacht und es macht eigendlich auch mehr Sinn. Nach der Umsetzung von der automatischen Skalierung des Screenshotes hatte ich danach grosse Performance Probleme, da es beim skalieren der App sehr gestockt hat. Der grund war, das es bei jeder Pixel bewegung das Bild neu angepasst hat. Ich ahbe das danach geändert indem ich eine verzögerung von 100ms eingebaut habe. 
 
 11.03.2025 Ich habe die App auf das neue Design umgestellt. Hier gab es ein paar schwirigkeiten, vorallem das der Button Fett mit dem Customtkinter nicht mehr funktioniert da es das Bolt nicht unterstützt. Ich habe danach einen Mix von beiden gemacht, das meiste ist mit Customtkinter ausser die Textfelder sind weiterhin mit dem normalen tkinter. So kann ich die Formatierung besser steuern. 
+
+15.03.2025 Ich habe das Projekt mit Michael besprochen, dabei ist noch ein BUG aufgetaucht, dass sich das Image Feld nicht geleert hat wenn man ein Notiz gelöscht hat. Diesen Bug habe ich noch korrigiert. Zusätzlich habe ich noch die Messagebox optimiert und einheitlich gestaltet. 
