@@ -34,7 +34,8 @@ Folgende Punkte will ich umsetzen:
 - ✅ Zwischenablage vom Screenshot nach dem einfügen wieder leeren.
 - ✅ Wenn ein Notiz gelöscht wird, dann wird das Screenshot Feld nicht aktuallisiert.
 - ✅ Messageboxen einheitlich gestalten
-- ✅ Resize_canvas optimieren, damit sich das Bild schneller anpasst beim skallieren
+- ✅ Resize_canvas optimieren, damit sich das Bild schneller anpasst beim skallieren.
+- Kursiv und Underline Funktion erstellt, allerdings fehlt noch die Funktion wo den Text dann visuell kursiv oder underline darstellt. 
 
 ### Präsentation am 26.03.2025
 - 10min
