@@ -81,7 +81,10 @@ class NotizbuchApp:
         ctk.CTkButton(button_frame, text="Speichern", command=self.add_note, width=120).pack(side="left", padx=5)
         ctk.CTkButton(button_frame, text="Aktualisieren", command=self.update_note, width=120).pack(side="left", padx=5)
         ctk.CTkButton(button_frame, text="Löschen", command=self.delete_note, width=120).pack(side="left", padx=5)
+        ctk.CTkButton(button_frame, text="Underline", command=self.make_underline, width=80).pack(side="right", padx=5)
+        ctk.CTkButton(button_frame, text="Kursiv", command=self.make_italic, width=80).pack(side="right", padx=5)
         ctk.CTkButton(button_frame, text="Fett", command=self.make_bold, width=80).pack(side="right", padx=5)
+
 
    
     def add_note(self):  # Notiz hinzufügen    
@@ -229,6 +232,44 @@ class NotizbuchApp:
 
         else:
             self.show_false_message("Kein Text markiert!")
+
+
+    def make_italic(self):  # Kursiv-Markierung einfügen oder entfernen
+        selected_range = self.content_text.tag_ranges(tk.SEL)
+        if len(selected_range) == 2:
+            start, end = selected_range
+            selected_text = self.content_text.get(start, end)
+
+            if selected_text.strip().startswith("*") and selected_text.strip().endswith("*"):
+                new_text = selected_text[1:-1]  # Falls ja, entferne das Markdown-Sternchen
+
+            else:
+                new_text = f"*{selected_text}*"  # Falls nicht, füge * hinzu
+
+            self.content_text.delete(start, end)
+            self.content_text.insert(start, new_text)
+
+        else:
+            self.show_false_message("Kein Text markiert!")
+
+    def make_underline(self):  # Unterstreichung mit Markdown (Alternative: _Text_)
+        selected_range = self.content_text.tag_ranges(tk.SEL)
+        if len(selected_range) == 2:
+            start, end = selected_range
+            selected_text = self.content_text.get(start, end)
+
+            if selected_text.strip().startswith("_") and selected_text.strip().endswith("_"):
+                new_text = selected_text[1:-1]  # Falls ja, entferne die Unterstriche
+
+            else:
+                new_text = f"_{selected_text}_"  # Falls nicht, füge _ hinzu
+
+            self.content_text.delete(start, end)
+            self.content_text.insert(start, new_text)
+
+        else:
+            self.show_false_message("Kein Text markiert!")
+
 
 
     # Markdown Formatierung für Fett
