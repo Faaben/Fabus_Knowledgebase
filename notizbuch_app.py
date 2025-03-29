@@ -20,6 +20,8 @@ class NotizbuchApp:
 
         self.create_widgets()
         self.db.init_db()  # Datenbank initialisieren
+        self.search_notes()
+    
 
 
     def create_widgets(self):
@@ -59,6 +61,8 @@ class NotizbuchApp:
 
         self.results_text.bind("<ButtonRelease-1>", lambda event: self.select_note(event))
         self.results_text.tag_configure("bold", font=(config.FONT_FAMILY, config.FONT_SIZE, "bold")) # Tag für Markdown-Fettformatierung setzen
+        self.results_text.tag_configure("italic", font=(config.FONT_FAMILY, config.FONT_SIZE, "italic"))  # Tag für Markdown-Kursivformatierung
+        self.results_text.tag_configure("underline", font=(config.FONT_FAMILY, config.FONT_SIZE, "underline"))  # Tag für Markdown-Underlineformatierung
         self.results_text.tag_configure("highlight", background=config.HIGHLIGHT_COLOR, foreground="black") # Wird fpr das Highlight verwendet
 
         # Screenshot-Anzeige
@@ -78,59 +82,35 @@ class NotizbuchApp:
         button_frame = ctk.CTkFrame(self.root)
         button_frame.grid(row=4, column=0, columnspan=4, pady=5, sticky="ew")
 
-        ctk.CTkButton(button_frame, text="Speichern", command=self.add_note, width=120).pack(side="left", padx=5)
-        ctk.CTkButton(button_frame, text="Aktualisieren", command=self.update_note, width=120).pack(side="left", padx=5)
+        ctk.CTkButton(button_frame, text="Speichern", command=self.save_note, width=120).pack(side="left", padx=5)
         ctk.CTkButton(button_frame, text="Löschen", command=self.delete_note, width=120).pack(side="left", padx=5)
         ctk.CTkButton(button_frame, text="Underline", command=self.make_underline, width=80).pack(side="right", padx=5)
         ctk.CTkButton(button_frame, text="Kursiv", command=self.make_italic, width=80).pack(side="right", padx=5)
         ctk.CTkButton(button_frame, text="Fett", command=self.make_bold, width=80).pack(side="right", padx=5)
 
 
-   
-    def add_note(self):  # Notiz hinzufügen    
-        if self.selected_note_id is not None:
-            self.show_false_message("Eine bestehende Notiz kann nicht gespeichert werden! Bitte aktualisiere sie stattdessen.")
-            return
-        
-        title = self.title_entry.get()
-        content = self.content_text.get("1.0", "end").strip() 
-        # self.content_text ist dein Tkinter Text-Widget (wo der Benutzer seine Notiz eingibt).
-        # "1.0" → Beginn des Textfelds (erste Zeile, erstes Zeichen)
-        # ."end" → Ende des Textfelds (alles bis zum letzten Zeichen).
-
-        if title and content:
-            note = Notiz(title, content)  # Schritt 1: Notiz speichern (ohne Screenshot)
-            note_id = self.db.add_note(note)  # Notiz-ID abrufen
-
-            screenshot_saved = False  # Schritt 2: Prüfen, ob ein Screenshot in der Zwischenablage ist
-            if hasattr(self, 'temp_image_data') and self.temp_image_data:
-                self.db.speichere_screenshot(note_id, self.temp_image_data)
-                screenshot_saved = True
-
-            self.clear_input_fields()  # Schritt 3: Eingabefelder & Screenshot-Feld zurücksetzen     
-            self.show_success_message("Notiz erfolgreich gespeichert!")  # Schritt 4: Erfolgsnachricht & UI-Aktualisierung
-            self.search_notes()  # Notizliste aktualisieren
-
-        else:
-            self.show_false_message("Titel und Inhalt dürfen nicht leer sein!")
-
-
-    def update_note(self):  # Notiz aktualisieren
-        if self.selected_note_id is None:
-            self.show_false_message("Keine Notiz ausgewählt!")
-            return
-        
-        title = self.title_entry.get().strip() # Hole die aktualisierten Werte aus den Eingabefeldern
+    def save_note(self):  # Neue Methode: Speichern oder Aktualisieren
+        title = self.title_entry.get().strip()
         content = self.content_text.get("1.0", "end").strip()
-        image_blob = self.temp_image_data if hasattr(self, "temp_image_data") else None  # Falls ein Screenshot eingefügt wurde, diesen speichern
+        image = self.temp_image_data if hasattr(self, "temp_image_data") else None
 
-        if title and content:
-            self.db.update_note(self.selected_note_id, title, content, image_blob)  # Notiz und ggf. Screenshot in der Datenbank aktualisieren
-            self.show_success_message("Notiz wurde aktualisiert!")
-            self.search_notes()  # Suche neu laden
-            self.clear_input_fields()  # Alle Inputfelder leeren
+        if not title or not content:
+            self.show_false_message("Titel und Inhalt dürfen nicht leer sein!")
+            return
+
+        note = Notiz(title, content, image)
+
+        note_id = self.selected_note_id if self.selected_note_id is not None else None
+        new_id = self.db.save_note(note_id, note)
+
+
+        if note_id is None:
+            self.show_success_message("Notiz erfolgreich gespeichert!")
         else:
-            self.show_false_message("Inhalt darf nicht leer sein!")
+            self.show_success_message("Notiz wurde aktualisiert!")
+
+        self.clear_input_fields()
+        self.search_notes()
 
         
     def search_notes(self):  # Notizen suchen
@@ -138,9 +118,9 @@ class NotizbuchApp:
         self.results_text.tag_remove("highlight", "1.0", "end")  # Vorherige Markierungen entfernen
         self.results_text.delete("1.0", "end")  # Alte Suchergebnisse löschen
    
-        if not query:  # Falls das Suchfeld leer ist → Eingabefelder zurücksetzen
-            self.clear_input_fields()  # Alle Inputfelder leeren
-            return
+        #if not query:  # Falls das Suchfeld leer ist → Eingabefelder zurücksetzen
+            #self.clear_input_fields()  # Alle Inputfelder leeren
+            #return
 
         results = self.db.search_notes(query)
 
@@ -149,8 +129,11 @@ class NotizbuchApp:
             self.results_text.insert("end", f"ID: {note_id} | ", "bold")  # ID normal einfügen
             self.results_text.insert("end", f"{title}\n", "bold")  # Titel fett machen
             self.insert_markdown_text(self.results_text, content)  # Hier wird Markdown für den Inhalt angewendet:
-            self.results_text.insert("end", f"\n\n {'-'*40}\n\n")  # Abstand zwischen Notizen einfügen       
-            self.search_and_highlight(query, start_index)  # Hervorhebung durchführen
+            # self.insert_italic_text(self.results_text, content)  # Hier wird Kursiv eingefügt
+            self.results_text.insert("end", f"\n\n {'-'*40}\n\n")  # Abstand zwischen Notizen einfügen  
+
+            if query:    
+                self.search_and_highlight(query, start_index)  # Hervorhebung durchführen
 
 
     def select_note(self, event):  #Notiz auswählen
@@ -166,30 +149,32 @@ class NotizbuchApp:
                 note_id = parts[0].replace("ID:", "").strip()     
                 
                 if note_id.isdigit():
-                    self.selected_note_id = int(note_id)  # Speichert die ausgewählte Notiz-ID
-                    title, content = self.db.get_note(self.selected_note_id)  # Lade die Notiz aus der Datenbank
-                    image_blob = self.db.lade_screenshot(self.selected_note_id)  # Screenshot aus der Datenbank laden
+                    note = self.db.get_note(int(note_id))
+                    #self.selected_note_id = int(note_id)  # Speichert die ausgewählte Notiz-ID
+                    #title, content = self.db.get_note(self.selected_note_id)  # Lade die Notiz aus der Datenbank
+                    #image_blob = self.db.lade_screenshot(self.selected_note_id)  # Screenshot aus der Datenbank laden
 
-                    if title and content:
+                    if note:
+                        self.selected_note_id = note.id  # 👉 Speichert die ID im GUI-State
                         self.title_entry.delete(0, "end")  #Titel leeren
-                        self.title_entry.insert(0, title)  # Titel einfügen
+                        self.title_entry.insert(0, note.title)  # Titel einfügen
 
                         self.content_text.delete("1.0", "end")  #Content leeren
-                        self.content_text.insert("1.0", content)  # Content einfügen
+                        self.content_text.insert("1.0", note.content)  # Content einfügen
 
-                    if image_blob:
-                        image_data = io.BytesIO(image_blob)
-                        img = Image.open(image_data)
+                        if note.image:
+                            image_data = io.BytesIO(note.image)
+                            img = Image.open(image_data)
 
-                        with io.BytesIO() as output:
-                            img.save(output, format="PNG")
-                            self.temp_image_data = output.getvalue() # Bild temporär speichern, damit es auch bei Resize funktioniert
+                            with io.BytesIO() as output:
+                                img.save(output, format="PNG")
+                                self.temp_image_data = output.getvalue() # Bild temporär speichern, damit es auch bei Resize funktioniert
 
-                        self.display_screenshot(img)  # Screenshot im Canvas anzeigen
+                            self.display_screenshot(img)  # Screenshot im Canvas anzeigen
 
-                    else:
-                        self.screenshot_canvas.delete("all") # Wenn es kein Bild hat, dann Canvas leeren
-                        self.temp_image_data = None  # Keine Bilddaten gespeichert
+                        else:
+                            self.screenshot_canvas.delete("all") # Wenn es kein Bild hat, dann Canvas leeren
+                            self.temp_image_data = None  # Keine Bilddaten gespeichert
 
 
     def delete_note(self):  # Notiz löschen
@@ -258,11 +243,11 @@ class NotizbuchApp:
             start, end = selected_range
             selected_text = self.content_text.get(start, end)
 
-            if selected_text.strip().startswith("_") and selected_text.strip().endswith("_"):
+            if selected_text.strip().startswith("__") and selected_text.strip().endswith("__"):
                 new_text = selected_text[1:-1]  # Falls ja, entferne die Unterstriche
 
             else:
-                new_text = f"_{selected_text}_"  # Falls nicht, füge _ hinzu
+                new_text = f"__{selected_text}__"  # Falls nicht, füge _ hinzu
 
             self.content_text.delete(start, end)
             self.content_text.insert(start, new_text)
@@ -271,25 +256,27 @@ class NotizbuchApp:
             self.show_false_message("Kein Text markiert!")
 
 
-
-    # Markdown Formatierung für Fett
     def insert_markdown_text(self, text_widget, content):
+        # Kombiniertes Muster für ***bolditalic***, **bold**, *italic*
+        pattern = r"\*\*\*(.*?)\*\*\*|\*\*(.*?)\*\*|\*(.*?)\*|__(.*?)__"
 
-        bold_pattern = r"\*\*(.*?)\*\*|__(.*?)__"
-        
-        last_index = 0  # Position im Originaltext
-        for match in re.finditer(bold_pattern, content): # Suche nach dem **fett**
-            start, end = match.span()  # Position des Matches im String
-            
-            # Normalen Text vor dem fettgedruckten Bereich einfügen
+        last_index = 0
+        for match in re.finditer(pattern, content):
+            start, end = match.span()
+
+            # Text vor dem Match einfügen
             normal_text = content[last_index:start]
-            text_widget.insert(tk.END, normal_text)  
+            text_widget.insert(tk.END, normal_text)
 
-            # Fettgedruckten Text einfügen & formatieren
-            bold_text = match.group(1) if match.group(1) else match.group(2)
-            text_widget.insert(tk.END, bold_text, "bold") # Fett markieren
+            if match.group(1):  # ***bolditalic***
+                text_widget.insert(tk.END, match.group(1), ("bold", "italic"))
+            elif match.group(2):  # **bold**
+                text_widget.insert(tk.END, match.group(2), "bold")
+            elif match.group(3):  # *italic*
+                text_widget.insert(tk.END, match.group(3), "italic")
+            elif match.group(4):  # __underline__
+                text_widget.insert(tk.END, match.group(4), "underline")
 
-            # Position nach dem fettgedruckten Bereich aktualisieren
             last_index = end
 
         # Falls nach dem letzten fettgedruckten Wort noch normaler Text existiert
