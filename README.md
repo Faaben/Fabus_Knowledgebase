@@ -25,7 +25,8 @@ Folgende Punkte will ich umsetzen:
 - Dateien an einem Notiz anfügen
 - Ein CMD erstellen, damit ich das notizbuch mit dem Kurzbefehl "111" das notizbuch öffnen kann
 - In der KB eine 2 Lasche erstellen. Damit man auf der 2. ein kleines Game hat.
-- Button für Kursiv und Underline erstellen
+- ✅ Button für Kursiv und Underline erstellen
+- ✅ Speichern und Aktuallisieren Button zusammenführen.
 
 ###ToDo's
 - ✅ Wenn ich die Grösse von meiner KB verändere, dann soll sich das ausgewählte Image sich automatisch der grösse anpassen.
@@ -35,7 +36,9 @@ Folgende Punkte will ich umsetzen:
 - ✅ Wenn ein Notiz gelöscht wird, dann wird das Screenshot Feld nicht aktuallisiert.
 - ✅ Messageboxen einheitlich gestalten
 - ✅ Resize_canvas optimieren, damit sich das Bild schneller anpasst beim skallieren.
-- Kursiv und Underline Funktion erstellt, allerdings fehlt noch die Funktion wo den Text dann visuell kursiv oder underline darstellt. 
+- ✅ Kursiv und Underline Funktion erstellt, allerdings fehlt noch die Funktion wo den Text dann visuell kursiv oder underline darstellt.
+- ✅ Besprechung mit Michael: Bei der Datenbank abfrage schauen das ich immer mit der Klasse Note arbeite. Add, Update, Delete angepasst
+- ✅ Wenn Suchfeld leer, dann sollen alle Notizen angezeigt werden. 
 
 ### Präsentation am 26.03.2025
 - 10min
@@ -65,3 +68,8 @@ ChatGPT meint, dass dies ein gängiger Fehler by pyinstaller ist und durch den P
 11.03.2025 Ich habe die App auf das neue Design umgestellt. Hier gab es ein paar schwirigkeiten, vorallem das der Button Fett mit dem Customtkinter nicht mehr funktioniert da es das Bolt nicht unterstützt. Ich habe danach einen Mix von beiden gemacht, das meiste ist mit Customtkinter ausser die Textfelder sind weiterhin mit dem normalen tkinter. So kann ich die Formatierung besser steuern. 
 
 15.03.2025 Ich habe das Projekt mit Michael besprochen, dabei ist noch ein BUG aufgetaucht, dass sich das Image Feld nicht geleert hat wenn man ein Notiz gelöscht hat. Diesen Bug habe ich noch korrigiert. Zusätzlich habe ich noch die Messagebox optimiert und einheitlich gestaltet. 
+
+29.03.2025 
+- Ich habe den Code noch mit den Funktionen italic und underline ergänzt damit die Buttons funktionieren
+- Feedback von MichaelIch habe auch noch die Funktionen add_note und update_note zusammengeführt zur funktion save_note. Sowohl in der Datenbank als auch im GUI. So habe ich nur noch einen Button auf das Maske.
+- Feedback von Michael: Wenn das Suchfeld leer war, dann gab es auch keine KB's. Ich habe es jetzt so eingestellt, das wenn ich das Programm starte dann lädt es alle Einträge und wenn das Feld leer ist, dann sind auch alle Einträge ersichtlich. 
