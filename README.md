@@ -72,4 +72,8 @@ ChatGPT meint, dass dies ein gängiger Fehler by pyinstaller ist und durch den P
 29.03.2025 
 - Ich habe den Code noch mit den Funktionen italic und underline ergänzt damit die Buttons funktionieren
 - Feedback von MichaelIch habe auch noch die Funktionen add_note und update_note zusammengeführt zur funktion save_note. Sowohl in der Datenbank als auch im GUI. So habe ich nur noch einen Button auf das Maske.
-- Feedback von Michael: Wenn das Suchfeld leer war, dann gab es auch keine KB's. Ich habe es jetzt so eingestellt, das wenn ich das Programm starte dann lädt es alle Einträge und wenn das Feld leer ist, dann sind auch alle Einträge ersichtlich. 
+- Feedback von Michael: Wenn das Suchfeld leer war, dann gab es auch keine KB's. Ich habe es jetzt so eingestellt, das wenn ich das Programm starte dann lädt es alle Einträge und wenn das Feld leer ist, dann sind auch alle Einträge ersichtlich.
+
+25.04.2025
+- Finale .exe für die Abgabe des Projektes erstellt. 
+- .exe auf einer neu erstellten VM mit Windows 11 getestet ob man irgend welche Packete oder Bibliotheken installieren muss oder nicht. --> Die .exe konnte ohne zusätzliche Installationen gestartet werden. Die Datenbank wurde korrekt unter Dokumenten erstellt. 
