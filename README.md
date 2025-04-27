@@ -85,7 +85,7 @@ Wichtig: Ändere den Namen der Datei Fäbus_KB.db bitte nicht, sonst kann die Ap
 Wenn man eine .exe Datei erstellt hat und danach wieder am Code etwas anpasst, wird dies nicht übernommen.  
 Das bedeutet, die Datei muss neu aufgebaut werden.  
 Navigiere im Terminal zum Ordner Fabus_Knowledgebase, wenn du die gesamte Struktur von GitHub übernommen hast, und gib folgenden Befehl ein:
-``pyinstaller --onefile --windowed --noupx --clean --name "Fäbus_KB" main.py``
+``pyinstaller --onefile --windowed --icon=C:\Users\Fabian\Documents\Feusi\OOP_und_Softwarearchitektur\Fabus_Knowledgebase\others\Images\logo.ico --noupx --clean --name "Fäbus_KB" app.py``
 
 ## Journal
 ### 02.03.2025  
