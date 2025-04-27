@@ -1,8 +1,9 @@
 import tkinter as tk
 import customtkinter as ctk
 from tkinter import ttk
-from notizen_tab import NotizenTab
-from aufgaben_tab import AufgabenTab
+from tabs.notizen_tab import NotizenTab
+from tabs.aufgaben_tab import AufgabenTab
+import config
 
 ctk.set_appearance_mode("dark")  # "light" oder "dark"
 ctk.set_default_color_theme("blue")  # Oder "green", "dark-blue", etc.
@@ -15,6 +16,18 @@ class App:
 
         # Notebook hinzufügen
         self.notebook = ttk.Notebook(self.root)
+
+        # Hier Style für Tabs setzen
+        style = ttk.Style()
+        style.theme_use('default')
+        style.configure('TNotebook', background=config.ENTRY_BG)
+        style.configure('TNotebook.Tab', background=config.ENTRY_BG, foreground=config.LABEL_TEXT_COLOR)
+        # Ausgewählter Tab
+        style.map('TNotebook.Tab',
+            background=[('selected', config.BTN_COLOR)], # Tab-Hintergrund
+            foreground=[('selected', config.BTN_TEXT_COLOR)]  # Tab-Text
+        )
+
         self.notebook.pack(expand=True, fill="both")
 
         # Tabs (Frames) erstellen

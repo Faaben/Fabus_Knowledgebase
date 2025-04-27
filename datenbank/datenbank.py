@@ -1,6 +1,6 @@
 import sqlite3
 import os
-from notiz import Notiz
+from model.notiz import Notiz
 
 class Datenbank:
     def __init__(self, db_name="Fäbus_KB.db"):

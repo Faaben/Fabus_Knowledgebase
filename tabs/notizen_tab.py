@@ -4,10 +4,10 @@ import io
 import tkinter as tk
 from tkinter import *
 import customtkinter as ctk
-from datenbank import Datenbank
-from notiz import Notiz
+from datenbank.datenbank import Datenbank
+from model.notiz import Notiz
 from PIL import Image, ImageTk, ImageGrab
-from custom_messagebox import CustomMessagebox
+from messagebox.custom_messagebox import CustomMessagebox
 
 
 
