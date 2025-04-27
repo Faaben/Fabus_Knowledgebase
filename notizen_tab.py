@@ -9,54 +9,54 @@ from notiz import Notiz
 from PIL import Image, ImageTk, ImageGrab
 from custom_messagebox import CustomMessagebox
 
-class NotizbuchApp:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Fäbu's Knowledgebase")
-        self.root.geometry("900x650")
 
+
+   
+class NotizenTab:
+
+    def __init__(self, parent):
         self.db = Datenbank()
         self.selected_note_id = None  # Speichert die ID der ausgewählten Notiz
 
+        self.frame = ctk.CTkFrame(parent)
         self.create_widgets()
         self.db.init_db()  # Datenbank initialisieren
         self.search_notes()
-    
 
 
     def create_widgets(self):
 
         # Spalten-Skalierung
-        self.root.columnconfigure(0, weight=1)  # Linke Spalte (z. B. für "Aktualisieren"-Button)
-        self.root.columnconfigure(1, weight=1)  # Aktualisieren Button
-        self.root.columnconfigure(2, weight=1)  # Löschen Button
-        self.root.columnconfigure(3, weight=1)  # Fett Button
-        self.root.columnconfigure(4, weight=1)  # Rechte Spalte (Screenshot)
+        self.frame.columnconfigure(0, weight=1)  # Linke Spalte (z. B. für "Aktualisieren"-Button)
+        self.frame.columnconfigure(1, weight=1)  # Aktualisieren Button
+        self.frame.columnconfigure(2, weight=1)  # Löschen Button
+        self.frame.columnconfigure(3, weight=1)  # Fett Button
+        self.frame.columnconfigure(4, weight=1)  # Rechte Spalte (Screenshot)
 
         # Zeilen-Skalierung
-        self.root.rowconfigure(3, weight=1)  # Z. B. für das Notizfeld oder Suchbereich
-        self.root.rowconfigure(10, weight=2)  # Größere Gewichtung für das Suchergebnis
+        self.frame.rowconfigure(3, weight=1)  # Z. B. für das Notizfeld oder Suchbereich
+        self.frame.rowconfigure(10, weight=2)  # Größere Gewichtung für das Suchergebnis
     
         # Titel-Eingabe
-        ctk.CTkLabel(self.root, text="Titel:").grid(row=0, column=0, sticky="w", padx=10, pady=5)
-        self.title_entry = ctk.CTkEntry(self.root)
+        ctk.CTkLabel(self.frame, text="Titel:").grid(row=0, column=0, sticky="w", padx=10, pady=5)
+        self.title_entry = ctk.CTkEntry(self.frame)
         self.title_entry.grid(row=1, column=0, columnspan=4, sticky="ew", padx=(10, 5), pady=5)
 
         # Notiz-Eingabe
-        ctk.CTkLabel(self.root, text="Notiz:").grid(row=2, column=0, sticky="w", padx=10, pady=5)
-        self.content_text = tk.Text(self.root, height=10, bg=config.ENTRY_BG, fg=config.ENTRY_FG, insertbackground=config.INSERT, font=config.FONT)
+        ctk.CTkLabel(self.frame, text="Notiz:").grid(row=2, column=0, sticky="w", padx=10, pady=5)
+        self.content_text = tk.Text(self.frame, height=10, bg=config.ENTRY_BG, fg=config.ENTRY_FG, insertbackground=config.INSERT, font=config.FONT)
         self.content_text.grid(row=3, column=0, columnspan=4, sticky="nsew", padx=(10,5), pady=5)
 
         # Suchfeld
-        ctk.CTkLabel(self.root, text="Suchen:").grid(row=7, column=0, sticky="w", padx=10, pady=5)
-        self.search_entry = ctk.CTkEntry(self.root)
+        ctk.CTkLabel(self.frame, text="Suchen:").grid(row=7, column=0, sticky="w", padx=10, pady=5)
+        self.search_entry = ctk.CTkEntry(self.frame)
         self.search_entry.grid(row=8, column=0, columnspan=5, sticky="ew", padx=10, pady=5)
 
         self.search_entry.bind("<KeyRelease>", lambda event: self.search_notes())
 
         # Suchergebnisse
-        ctk.CTkLabel(self.root, text="Suchergebnisse:").grid(row=9, column=0, columnspan=3, sticky="w", padx=10, pady=5)
-        self.results_text = tk.Text(self.root, height=30, bg=config.ENTRY_BG, fg=config.ENTRY_FG, font=config.FONT)
+        ctk.CTkLabel(self.frame, text="Suchergebnisse:").grid(row=9, column=0, columnspan=3, sticky="w", padx=10, pady=5)
+        self.results_text = tk.Text(self.frame, height=30, bg=config.ENTRY_BG, fg=config.ENTRY_FG, font=config.FONT)
         self.results_text.grid(row=10, column=0, columnspan=5, sticky="nsew", padx=10, pady=5)
 
         self.results_text.bind("<ButtonRelease-1>", lambda event: self.select_note(event))
@@ -66,20 +66,20 @@ class NotizbuchApp:
         self.results_text.tag_configure("highlight", background=config.HIGHLIGHT_COLOR, foreground="black") # Wird fpr das Highlight verwendet
 
         # Screenshot-Anzeige
-        ctk.CTkLabel(self.root, text="Screenshot-Vorschau:",).grid(row=0, column=4, sticky="w", padx=10, pady=5)
-        self.screenshot_canvas = ctk.CTkCanvas(self.root, bg="black", width=200, height=150)
+        ctk.CTkLabel(self.frame, text="Screenshot-Vorschau:",).grid(row=0, column=4, sticky="w", padx=10, pady=5)
+        self.screenshot_canvas = ctk.CTkCanvas(self.frame, bg="black", width=200, height=150)
         self.screenshot_canvas.grid(row=1, column=4, rowspan=4, padx=(5,10), pady=5, sticky="nsew")
         self.screenshot_canvas.bind("<Button-1>", self.paste_screenshot)
 
         # Event für Fenstergröße-Änderung binden
-        self.root.bind("<Configure>", self.resize_canvas)
+        self.frame.bind("<Configure>", self.resize_canvas)
 
         self.image_on_canvas = None  # Referenz für das Bild auf dem Canvas
         self.screenshot_tk = None  # Referenz für das skaliertes Bild
         self.temp_image_data = None  # Temporäre Speicherung des Bildes
 
         # Buttons in einem Frame
-        button_frame = ctk.CTkFrame(self.root)
+        button_frame = ctk.CTkFrame(self.frame)
         button_frame.grid(row=4, column=0, columnspan=4, pady=5, sticky="ew")
 
         ctk.CTkButton(button_frame, text="Speichern", command=self.save_note, width=120).pack(side="left", padx=5)
@@ -87,6 +87,8 @@ class NotizbuchApp:
         ctk.CTkButton(button_frame, text="Underline", command=self.make_underline, width=80).pack(side="right", padx=5)
         ctk.CTkButton(button_frame, text="Kursiv", command=self.make_italic, width=80).pack(side="right", padx=5)
         ctk.CTkButton(button_frame, text="Fett", command=self.make_bold, width=80).pack(side="right", padx=5)
+
+
 
 
     def save_note(self):  # Neue Methode: Speichern oder Aktualisieren
@@ -336,9 +338,9 @@ class NotizbuchApp:
     def resize_canvas(self, event):
         # Verzögert die Neuskalierung, um Performance-Probleme zu vermeiden
         if hasattr(self, "resize_after_id"):
-            self.root.after_cancel(self.resize_after_id)  # Vorherigen Aufruf abbrechen
+            self.frame.after_cancel(self.resize_after_id)  # Vorherigen Aufruf abbrechen
 
-        self.resize_after_id = self.root.after(10, self._perform_resize)  # Nach 10ms skalieren
+        self.resize_after_id = self.frame.after(10, self._perform_resize)  # Nach 10ms skalieren
 
 
     def _perform_resize(self):
@@ -359,29 +361,29 @@ class NotizbuchApp:
 
     def show_success_message(self, text):
         """Zeigt eine Erfolg OK-Messagebox"""
-        msgbox = CustomMessagebox(self.root, title="Erfolg", message=text, buttons=("OK",))
-        self.root.wait_window(msgbox)  # Warten, bis das Fenster geschlossen wird
+        msgbox = CustomMessagebox(self.frame, title="Erfolg", message=text, buttons=("OK",))
+        self.frame.wait_window(msgbox)  # Warten, bis das Fenster geschlossen wird
 
 
     def show_false_message(self, text):
         """Zeigt eine Fehler OK-Messagebox"""
-        msgbox = CustomMessagebox(self.root, title="Fehler", message=text, buttons=("OK",))
-        self.root.wait_window(msgbox)  # Warten, bis das Fenster geschlossen wird
+        msgbox = CustomMessagebox(self.frame, title="Fehler", message=text, buttons=("OK",))
+        self.frame.wait_window(msgbox)  # Warten, bis das Fenster geschlossen wird
 
 
     def show_confirmation(self, text):
         # eigt eine Ja/Nein-Messagebox und gibt das Ergebnis zurück
-        msgbox = CustomMessagebox(self.root, title="Bestätigung", message=text, buttons=("Ja", "Nein"))
-        self.root.wait_window(msgbox)  # Warten, bis das Fenster geschlossen wird
+        msgbox = CustomMessagebox(self.frame, title="Bestätigung", message=text, buttons=("Ja", "Nein"))
+        self.frame.wait_window(msgbox)  # Warten, bis das Fenster geschlossen wird
         return msgbox.result  # Gibt "Ja" oder "Nein" zurück
     
     def clear_clipboard(self):
         # Zwischenablage leeren
-        self.root.clipboard_clear()  # Inhalt löschen
-        self.root.clipboard_append("")  # Sicherstellen, dass nichts mehr drin ist
-        self.root.update()  # Änderungen an der Zwischenablage sofort übernehmen
+        self.frame.clipboard_clear()  # Inhalt löschen
+        self.frame.clipboard_append("")  # Sicherstellen, dass nichts mehr drin ist
+        self.frame.update()  # Änderungen an der Zwischenablage sofort übernehmen
 
 
 
     def run(self):
-        self.root.mainloop()
+        self.frame.mainloop()
