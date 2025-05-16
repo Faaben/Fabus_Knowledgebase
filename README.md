@@ -80,7 +80,8 @@ Wichtig: Ändere den Namen der Datei Fäbus_KB.db bitte nicht, sonst kann die Ap
 - ✅ Kursiv und Underline Funktion erstellt, allerdings fehlt noch die Funktion wo den Text dann visuell kursiv oder underline darstellt.
 - ✅ Besprechung mit Michael: Bei der Datenbank abfrage schauen das ich immer mit der Klasse Note arbeite. Add, Update, Delete angepasst
 - ✅ Wenn Suchfeld leer, dann sollen alle Notizen angezeigt werden.
-- Wenn man einen Notiz auswählt aber nicht erneut speichert, wird die Eingabemaske nicht geleert. --> Lösung 1 Button für leeren Lösung 2 Wenn das Suchfeld leer ist, soll es die eingabemaske leeren
+- Wenn man einen Notiz auswählt aber nicht erneut speichert, wird die Eingabemaske nicht geleert. --> Lösung 1 Button für leeren Lösung 2 Wenn das Suchfeld leer ist, soll es die eingabemaske leeren.
+- Soll der Notiz bei jeder eingabe gerade aktuallisiert werden? macht das sinn?
    
 ### Anleitung PyInstaller
 Wenn man eine .exe Datei erstellt hat und danach wieder am Code etwas anpasst, wird dies nicht übernommen.  
